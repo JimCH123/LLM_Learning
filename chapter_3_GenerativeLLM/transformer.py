@@ -1,38 +1,79 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 
-#載入模型與分詞器
-model_name = "microsoft/Phi-3-mini-4k-instruct"
+class Phi3Generator:
+    def __init__(self, model_id = "microsoft/Phi-3-mini-4k-instruct", device = "cuda"):
+        self.model_id = model_id
+        self.device = device
+        self.tokenizer = None
+        self.model = None
+        self.generator = None
+        
+    def load_model(self):
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            self.model_id
+        )
+        self.model = AutoModelForCausalLM.from_pretrained(
+            self.model_id,
+            device_map = self.device,
+            torch_dtype="auto",
+        )
 
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+    def build_generator(self):
+        self.generator = pipeline(
+            "text-generation",
+            model = self.model,
+            tokenizer = self.tokenizer,
+            do_sample = False,
+            return_full_text = False,  #只回傳結果 不包含提示詞
+            max_new_tokens=50,
+        )
 
-model = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    device_map="cuda",  
-    torch_dtype="auto",
-)
+    def generation1(self, prompt):
+        output = self.generator(prompt)
+        response = output[0]["generated_text"]
+        return response
 
-#建立生成管道
-generator = pipeline(
-    "text-generation",
-    model=model,
-    tokenizer=tokenizer,
-    return_full_text=False,  #只回傳結果 不包含提示詞
-    max_new_tokens=50,
-    do_sample=False,  #模型是否使用採樣策略選擇下一個字元
-)
+    def run(self):
+        self.load_model()
+        self.build_generator()
 
-#定義提示詞
-prompt = "The capital of France is"
 
-#將提示詞轉換為模型輸入格式(分詞)
-input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to("cuda")
 
-#lm前的輸出
-model_output = model.model(input_ids=input_ids)
+    def encode(self, prompt):
+        input_ids = self.tokenizer(prompt, return_tensors = "pt")["input_ids"].to(self.device)
+        return input_ids
 
-lm_model_output = model.lm_head(model_output[0])
+    def generate_ids(self, input_ids):
+        # print(self.model.named_parameters)
+        model_output = self.model.model(input_ids = input_ids)
+        # print(model_output)
+        lm_head_output = self.model.lm_head(model_output[0])
+        # print(lm_head_output)
+        token_id = lm_head_output[0, -1].argmax(dim = -1)
+        return token_id
 
-token_id = lm_model_output[0,-1].argmax(dim=-1)  #取得最大機率的token id
-print(tokenizer.decode(token_id))  #將token id轉換為文字
+    def decode(self, token_id):
+        return self.tokenizer.decode(token_id)
+
+    def generation2(self, prompt):
+        input_ids = self.encode(prompt)
+        token_id = self.generate_ids(input_ids)
+        return self.decode(token_id)
+
+
+
+if __name__ == "__main__":
+    phi3_generator = Phi3Generator()
+    phi3_generator.run()
+    prompt = "The capital of France is"
+    #=====================Method 1==========================
+    response1 = phi3_generator.generation1(prompt)
+    print(response1)
+    #=======================================================
+
+    #=====================Method 2==========================
+    response2 = phi3_generator.generation2(prompt)
+    print(response2)
+    #=======================================================
 
