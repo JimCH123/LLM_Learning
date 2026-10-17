@@ -1,0 +1,68 @@
+# llm-learning 所需套件
+# 測試環境：Python 3.12
+# 安裝：pip install -r requirements.txt
+#
+# 注意：
+# - torch 請依自己的 CUDA 版本到 https://pytorch.org 取得對應安裝指令（預設 pip 安裝可能是 CPU 版）
+# - bitsandbytes（QLoRA / 8-bit 量化）需要 NVIDIA GPU
+# - 有 GPU 想用 faiss GPU 版，可把 faiss-cpu 換成 faiss-gpu
+# - llama-cpp-python 安裝時需要編譯，GPU 加速請參考其官方文件
+# - OpenAI / Cohere 的 API key 請放在專案根目錄的 .env 檔
+
+# ---- 核心深度學習 ----
+torch>=2.14.0
+transformers>=5.17.0
+accelerate>=1.15.0
+bitsandbytes>=0.50.2
+datasets>=5.1.0
+evaluate>=0.4.6
+seqeval>=1.2.2
+
+# ---- 微調（第 11、12 章）----
+peft>=0.21.2
+trl>=1.15.0
+setfit>=1.2.0
+
+# ---- Embedding / 句向量（第 4、5、10 章）----
+sentence-transformers>=6.1.0
+mteb>=2.21.10
+
+# ---- 文本分群 / 主題模型（第 5 章）----
+bertopic>=0.17.4
+umap-learn>=0.5.12
+hdbscan>=0.8.44
+
+# ---- 傳統 NLP / 機器學習 ----
+scikit-learn>=1.9.1
+gensim>=4.4.0
+nltk>=3.10.3
+rank-bm25>=0.2.2
+
+# ---- LangChain（第 7、8 章）----
+langchain>=1.4.2
+langchain-core>=1.6.3
+langchain-community>=0.4.2
+langchain-classic>=1.0.8
+langchain-openai>=1.6.2
+langchain-huggingface>=1.2.2
+llama-cpp-python>=0.3.35
+
+# ---- 檢索 / RAG（第 8 章）----
+faiss-cpu
+cohere>=7.1.1
+
+# ---- API / 設定 ----
+openai>=3.16.2
+python-dotenv>=1.2.3
+
+# ---- 資料處理與視覺化 ----
+numpy>=2.5.3
+pandas>=3.0.6
+matplotlib>=3.11.2
+pillow>=12.3.0
+tqdm>=4.70.1
+
+# ---- Jupyter Notebook ----
+ipykernel>=7.3.0
+ipython>=9.17.1
+ipywidgets>=8.1.9
