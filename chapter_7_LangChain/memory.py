@@ -34,37 +34,7 @@ prompt = PromptTemplate(
     input_variables= ["chat_history", "input_prompt"]
 )
 
-'''
-#=============================================================
-#對話緩衝區 提醒他過去發生的事情
-memory = ConversationBufferMemory(
-    memory_key= "chat_history"
-)
 
-#將LLM 與提示詞和記憶串連在一起
-llm_chain = LLMChain(
-    llm = llm,
-    prompt = prompt,
-    memory = memory,
-)
-
-response = llm_chain.invoke(
-    {
-        "input_prompt" : "Hello, My name is Jim. What is 1+1?"
-    }
-)
-print(response)
-
-history_response = llm_chain.invoke(
-    {
-        "input_prompt" : "What is my name?"
-    }
-)
-print(history_response)
-'''
-
-'''
-#==================================================
 #ConversationBufferyWindowMemory 視窗式對話緩衝區 只保存最近k次對話 減少上下文視窗大小的方法
 memory = ConversationBufferWindowMemory(
     k = 2,                                  #只保存2次對話內容
@@ -100,9 +70,9 @@ history_response_2 = llm_chain.predict(
 )
 print(history_response_2)  #到這邊LLM只記住了response_2, history_response_1 已經忘記我的年紀
 
-'''
 
-'''
+
+
 #============================================================
 #summary_prompt_template 定義摘要規則 要怎麼把舊摘要 + 新對話整理成新的摘要
 #summary = 過去濃縮後的記憶
@@ -171,4 +141,4 @@ response_3 = llm_chain.invoke(
 print(response_3)
 print(memory.load_memory_variables({}))  #檢查目前的摘要內容
 #=======================================================================================
-'''
+
